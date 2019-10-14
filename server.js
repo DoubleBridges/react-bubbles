@@ -92,6 +92,7 @@ let colors = [
 let nextId = 12;
 
 function authenticator(req, res, next) {
+  console.log('auth', req.body)
   const { authorization } = req.headers;
   if (authorization === token) {
     next();
@@ -131,6 +132,7 @@ app.post("/api/colors", authenticator, (req, res) => {
 });
 
 app.put("/api/colors/:id", authenticator, (req, res) => {
+  console.log(req.body)
   if (!req.params.id)
     res.status(400).send("Your request is missing the color id");
   if (req.body.id === undefined || !req.body.color || !req.body.code) {

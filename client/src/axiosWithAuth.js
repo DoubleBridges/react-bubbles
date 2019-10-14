@@ -8,8 +8,14 @@ export const axiosWithAuth = () => {
       .create({
         headers: {
           'Content-Type': 'application.json',
-          'Authorization': `${token}`
+          'Authorization': token
         }
       })
   )
+}
+
+export const customAxios = (url, obj) => {
+  return axios
+    .put(url, obj, { headers: { 'Authorization': localStorage.token } })
+
 }

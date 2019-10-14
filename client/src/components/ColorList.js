@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { axiosWithAuth } from '../axiosWithAuth';
+import { axiosWithAuth, customAxios } from '../axiosWithAuth';
 import axios from 'axios';
 
 const initialColor = {
@@ -19,31 +19,21 @@ const ColorList = ({ colors, updateColors }) => {
     console.log(color)
   };
 
-  // const saveEdit = (e, color) => {
-  //   e.preventDefault();
-  //   axios
-  //     .get(`https://cors-anywhere.herokuapp.com/http://thecolorapi.com/id?hex=${color.code.hex.slice(1)}`)
-  //     .then(res => {
-  //       setColorToEdit({...colorToEdit, color: res.data.name.value })
-  //       // axiosWithAuth()
-  //       //   .put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit)
-  //       //   .then(res => {
-  //       //     console.log('ColorList: useEffect: PUT:',res.data)
-  //       //     updateColors(res.data)
-  //       //   })
-  //       //   .catch(err => console.log('ColorList: useEffect: PUT:', err))
-  //     })
-  //     .catch(err => console.log('ColorList: saveEdit: GET:', err))    
-  // };
-
   const saveEdit = (e, color) => {
-    e.preventDefault()
-    console.log(color.id, color)
-    axiosWithAuth()
-      .put(`http://localhost:5000/api/colors/${color.id}`, color)
-      .then(res => updateColors(res.data))
-      .catch(err => console.log('ColorList: useEffect: PUT:', err))
-  }
+    e.preventDefault();
+    axios
+      .get(`https://cors-anywhere.herokuapp.com/http://thecolorapi.com/id?hex=${color.code.hex.slice(1)}`)
+      .then(res => {
+        setColorToEdit({ ...colorToEdit, color: res.data.name.value })
+        console.log(res, res.data.name.value, colorToEdit)
+        customAxios(`http://localhost:5000/api/colors/${color.id}`, color)
+          .then(res => updateColors(res.data))
+          .catch(err => console.log('ColorList: useEffect: PUT:', err))
+      })
+      .catch(err => console.log('ColorList: saveEdit: GET:', err))    
+  };
+
+
 
   // const addColor = color => {
     // axios
