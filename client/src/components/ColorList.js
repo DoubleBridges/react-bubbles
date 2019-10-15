@@ -8,10 +8,12 @@ const initialColor = {
 };
 
 const ColorList = ({ colors, updateColors }) => {
-  console.log('incoming colors', colors)
+  
   const [editing, setEditing] = useState(false);
 
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+
+  const [colorToAdd, setColorToAdd] = useState(initialColor)
 
   const editColor = color => {
     setEditing(true);
@@ -23,14 +25,14 @@ const ColorList = ({ colors, updateColors }) => {
     axios
       .get(`https://cors-anywhere.herokuapp.com/http://thecolorapi.com/id?hex=${color.code.hex.slice(1)}`)
       .then(res => {
-        // setColorToEdit({ ...colorToEdit, color: res.data.name.value, code: { hex: res.data.name.closest_named_hex} })
+        
         const modifiedColor = { ...color,  color: res.data.name.value, code: { hex: res.data.name.closest_named_hex } }
         
         axiosWithAuth('put', `http://localhost:5000/api/colors/${color.id}`, modifiedColor)
           .then(res => {
-            console.log('ColorList: saveEdit: axiosWithAuth: PUT:', res.data, colorToEdit)
             updateColors(res.data)
             setColorToEdit(initialColor)
+            setEditing(false)
           })
           .catch(err => console.log('ColorList: saveEdit: PUT:', err))
       })
@@ -50,7 +52,7 @@ const ColorList = ({ colors, updateColors }) => {
         axiosWithAuth('post', `http://localhost:5000/api/colors`, newColor)
           .then(res => {
             updateColors(res.data)
-            setColorToEdit(initialColor)
+            setColorToAdd(initialColor)
           })
           .catch(err => console.log('ColorList: addColor: POST:', err))
       })
@@ -123,18 +125,18 @@ const ColorList = ({ colors, updateColors }) => {
         </form>
       )}
       <form
-        onSubmit={e => addColor(e, colorToEdit)}>
+        onSubmit={e => addColor(e, colorToAdd)}>
         <legend>add a color</legend>
         <label>
           hex code:
           <input
               onChange={e =>
-                setColorToEdit({
-                  ...colorToEdit,
+                setColorToAdd({
+                  ...colorToAdd,
                   code: { hex: e.target.value }
                 })
               }
-              value={colorToEdit.code.hex}
+              value={colorToAdd.code.hex}
             />
         </label>
         <div className="button-row">
