@@ -146,14 +146,14 @@ app.put("/api/colors/:id", authenticator, (req, res) => {
     }
     return color;
   });
-  res.status(200).json(colors);
+  res.status(200).send(colors);
 });
 
 app.delete("/api/colors/:id", authenticator, (req, res) => {
   if (!req.params.id)
     res.status(400).send("Your request is missing the color id");
   colors = colors.filter(color => `${color.id}` !== req.params.id);
-  res.status(202).json(colors);
+  res.status(202).send(colors);
 });
 
 app.get("/", function(req, res) {

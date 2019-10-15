@@ -8,7 +8,7 @@ const initialColor = {
 };
 
 const ColorList = ({ colors, updateColors }) => {
-  console.log(colors)
+  console.log('incoming colors', colors)
   const [editing, setEditing] = useState(false);
 
   const [colorToEdit, setColorToEdit] = useState(initialColor);
@@ -23,26 +23,47 @@ const ColorList = ({ colors, updateColors }) => {
     axios
       .get(`https://cors-anywhere.herokuapp.com/http://thecolorapi.com/id?hex=${color.code.hex.slice(1)}`)
       .then(res => {
-        setColorToEdit({ ...colorToEdit, color: res.data.name.value })
-        axiosWithAuth('put', `http://localhost:5000/api/colors/${color.id}`, color)
+        // setColorToEdit({ ...colorToEdit, color: res.data.name.value, code: { hex: res.data.name.closest_named_hex} })
+        const modifiedColor = { ...color,  color: res.data.name.value, code: { hex: res.data.name.closest_named_hex } }
+        
+        axiosWithAuth('put', `http://localhost:5000/api/colors/${color.id}`, modifiedColor)
           .then(res => {
+            console.log('ColorList: saveEdit: axiosWithAuth: PUT:', res.data, colorToEdit)
             updateColors(res.data)
+            setColorToEdit(initialColor)
           })
-          .catch(err => console.log('ColorList: useEffect: PUT:', err))
+          .catch(err => console.log('ColorList: saveEdit: PUT:', err))
       })
       .catch(err => console.log('ColorList: saveEdit: GET:', err))    
   };
 
 
 
-  const addColor = color => {
+  const addColor = (e, color) => {
+    e.preventDefault()
     axios
-      .get()
+      .get(`https://cors-anywhere.herokuapp.com/http://thecolorapi.com/id?hex=${color.code.hex.slice(1)}`)
+      .then(res => {
+
+        const newColor = { color: res.data.name.value, code: { hex: res.data.name.closest_named_hex} }
+      
+        axiosWithAuth('post', `http://localhost:5000/api/colors`, newColor)
+          .then(res => {
+            updateColors(res.data)
+            setColorToEdit(initialColor)
+          })
+          .catch(err => console.log('ColorList: addColor: POST:', err))
+      })
+      
+      .catch(err => console.log('colorList: addColor: GET:', err))
   }
 
   const deleteColor = color => {
     axiosWithAuth('delete', (`http://localhost:5000/api/colors/${color.id}`))
-      .then(res => updateColors(res.data))
+      .then(res => {
+        updateColors(res.data)
+        setColorToEdit(initialColor)
+      })
       .catch(err => console.log('ColorList: DELETE:', err))
 
   };
@@ -107,14 +128,14 @@ const ColorList = ({ colors, updateColors }) => {
         <label>
           hex code:
           <input
-            onChange={e =>
-              setColorToEdit({
-                ...colorToEdit,
-                code: { hex: e.target.value }
-              })
-            }
-            value={colorToEdit.code.hex}
-          />
+              onChange={e =>
+                setColorToEdit({
+                  ...colorToEdit,
+                  code: { hex: e.target.value }
+                })
+              }
+              value={colorToEdit.code.hex}
+            />
         </label>
         <div className="button-row">
           <button type="submit">save</button>
