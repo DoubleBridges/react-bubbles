@@ -1,21 +1,18 @@
 import axios from 'axios'
 
-export const axiosWithAuth = () => {
-  const token = localStorage.token
-
-  return (
-    axios
-      .create({
-        headers: {
-          'Content-Type': 'application.json',
-          'Authorization': token
-        }
-      })
-  )
-}
-
-export const customAxios = (url, obj) => {
-  return axios
-    .put(url, obj, { headers: { 'Authorization': localStorage.token } })
-
+export const axiosWithAuth = (req, url, obj) => {
+  
+  if (req == 'put') {
+    return axios
+      .put(url, obj, { headers: { 'Authorization': localStorage.token } })
+  } else if (req == 'get') {
+    return axios
+      .get(url, { headers: { 'Authorization': localStorage.token } })
+  } else if (req == 'post') {
+    return axios
+      .post(url, obj, { headers: { 'Authorization': localStorage.token } })
+  } else if (req == 'delete') {
+    return axios
+      .delete(url, { headers: { 'Authorization': localStorage.token } })
+  }
 }

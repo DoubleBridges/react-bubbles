@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { axiosWithAuth, customAxios } from '../axiosWithAuth';
+import { axiosWithAuth } from '../axiosWithAuth';
 import axios from 'axios';
 
 const initialColor = {
@@ -16,7 +16,6 @@ const ColorList = ({ colors, updateColors }) => {
   const editColor = color => {
     setEditing(true);
     setColorToEdit(color);
-    console.log(color)
   };
 
   const saveEdit = (e, color) => {
@@ -25,9 +24,10 @@ const ColorList = ({ colors, updateColors }) => {
       .get(`https://cors-anywhere.herokuapp.com/http://thecolorapi.com/id?hex=${color.code.hex.slice(1)}`)
       .then(res => {
         setColorToEdit({ ...colorToEdit, color: res.data.name.value })
-        console.log(res, res.data.name.value, colorToEdit)
-        customAxios(`http://localhost:5000/api/colors/${color.id}`, color)
-          .then(res => updateColors(res.data))
+        axiosWithAuth('put', `http://localhost:5000/api/colors/${color.id}`, color)
+          .then(res => {
+            updateColors(res.data)
+          })
           .catch(err => console.log('ColorList: useEffect: PUT:', err))
       })
       .catch(err => console.log('ColorList: saveEdit: GET:', err))    
@@ -35,14 +35,13 @@ const ColorList = ({ colors, updateColors }) => {
 
 
 
-  // const addColor = color => {
-    // axios
-      // .get()
-  // }
+  const addColor = color => {
+    axios
+      .get()
+  }
 
   const deleteColor = color => {
-    axiosWithAuth()
-      .delete(`http://localhost:5000/api/colors/${color.id}`)
+    axiosWithAuth('delete', (`http://localhost:5000/api/colors/${color.id}`))
       .then(res => updateColors(res.data))
       .catch(err => console.log('ColorList: DELETE:', err))
 
@@ -102,7 +101,7 @@ const ColorList = ({ colors, updateColors }) => {
           </div>
         </form>
       )}
-      {/* <form
+      <form
         onSubmit={e => addColor(e, colorToEdit)}>
         <legend>add a color</legend>
         <label>
@@ -121,7 +120,7 @@ const ColorList = ({ colors, updateColors }) => {
           <button type="submit">save</button>
           <button onClick={() => setEditing(false)}>cancel</button>
         </div>
-      </form> */}
+      </form>
     </div>
   );
 };
